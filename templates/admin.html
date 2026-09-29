@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ панел | Каталог за Щанци & Клишета</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+    :root {
+      --bg-color: #f1f5f9;
+      --panel-bg: #ffffff;
+      --panel-bg-secondary: #f8fafc;
+      --panel-border: rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #5b6b80;     /* 4.97:1 on the page background (AA) */
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --success: #10b981;
+      --danger: #dc2626;
+      --msg-error-text: #b91c1c;
+      --msg-success-text: #047857;
+      --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.4);
+      --selection-bg: rgb(37 99 235 / 0.2);
+      --warning: #f59e0b;
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-headers: 'Manrope', sans-serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .page-container { max-width: 900px; margin: 0 auto; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .top-bar a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; }
+    .top-bar a:hover { color: var(--text-color); }
+    .top-bar .links { display: flex; gap: 1.25rem; }
+    .page-title { font-family: var(--font-headers); font-weight: 800; font-size: 1.3rem; margin-bottom: 0.25rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-title { font-family: var(--font-headers); font-weight: 700; font-size: 1.05rem; margin-bottom: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--panel-border); }
+    th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+    .role-select {
+      padding: 0.4rem 0.6rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+    }
+    .row-actions { display: flex; gap: 0.5rem; }
+    .btn {
+      padding: 0.5rem 0.9rem;
+      border: none;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-primary { background-color: var(--primary-fill); color: #fff; }
+    .btn-primary:hover { background-color: var(--primary-fill-hover); }
+    .btn-danger { background-color: var(--danger); color: #fff; }
+    .btn-danger:hover { background-color: #b91c1c; }
+    .btn-secondary { background-color: var(--panel-bg-secondary); border: 1px solid var(--panel-border); color: var(--text-color); }
+    .btn-secondary:hover { background-color: rgba(0, 0, 0, 0.04); }
+    .form-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
+    .form-group { flex: 1; min-width: 140px; }
+    label { display: block; font-size: 0.8rem; margin-bottom: 0.35rem; color: var(--text-muted); }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    .msg-box { padding: 0.6rem 0.8rem; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .msg-box.error { background: rgba(239, 68, 68, 0.08); border: 1px solid var(--danger); color: var(--msg-error-text); }
+    .msg-box.success { background: rgba(16, 185, 129, 0.08); border: 1px solid var(--success); color: var(--msg-success-text); }
+    .self-tag { color: var(--text-muted); font-size: 0.75rem; margin-left: 0.4rem; }
+  
+    /* Dark theme shared with the catalogue page (same localStorage key) */
+    body.dark-theme {
+      --bg-color: #0b0f19;
+      --panel-bg: #111827;
+      --panel-bg-secondary: #1f2937;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --msg-error-text: #fca5a5;
+      --msg-success-text: #6ee7b7;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      --focus-ring: 0 0 0 3px rgb(96 165 250 / 0.5);
+      --selection-bg: rgb(96 165 250 / 0.3);
+    }
+    body.dark-theme select option { background: var(--panel-bg); color: var(--text-color); }
+
+    /* Browser surfaces, focus and letterforms (see index.html) */
+    ::selection { background: var(--selection-bg); color: var(--text-color); }
+    html { accent-color: var(--primary); }
+    input { caret-color: var(--primary); }
+    h1, h2, .page-title, .card-title, .login-title { font-feature-settings: "locl" 0; }
+    :where(button, a, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    input:focus-visible, select:focus-visible { border-color: var(--primary); box-shadow: var(--focus-ring); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <script>
+    // Apply the theme chosen on the catalogue page before first paint
+    try { if (localStorage.getItem('catalog-theme') === 'dark') document.body.classList.add('dark-theme'); } catch (e) {}
+  </script>
+  <div class="page-container">
+    <div class="top-bar">
+      <a href="/"><i class="fa-solid fa-arrow-left"></i> Обратно към каталога</a>
+      <div class="links">
+        <a href="/account">Моят акаунт</a>
+        <a href="/logout">Изход <i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+    </div>
+
+    <h1 class="page-title">Админ панел</h1>
+    <div class="page-subtitle">Управление на потребители и роли</div>
+
+    <div id="msg-box" class="msg-box"></div>
+
+    <div class="card">
+      <h2 class="card-title">Нов потребител</h2>
+      <form id="create-user-form" class="form-row">
+        <div class="form-group">
+          <label for="new-username">Потребителско име</label>
+          <input type="text" id="new-username" required>
+        </div>
+        <div class="form-group">
+          <label for="new-password">Парола</label>
+          <input type="password" id="new-password" required minlength="8">
+        </div>
+        <div class="form-group">
+          <label for="new-role">Роля</label>
+          <select id="new-role" class="role-select" style="width: 100%;">
+            <option value="read_only">Само преглед</option>
+            <option value="read_write">Редактиране</option>
+            <option value="admin">Администратор</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Създай</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Потребители</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Потребител</th>
+            <th>Роля</th>
+            <th>Създаден</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const currentUsername = {{ username|tojson }};
+    const msgBox = document.getElementById('msg-box');
+    const usersTbody = document.getElementById('users-tbody');
+
+    function showMsg(text, type) {
+      msgBox.textContent = text;
+      msgBox.className = `msg-box ${type}`;
+      msgBox.style.display = 'block';
+    }
+
+    function escapeHTML(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[ch]));
+    }
+
+    function roleLabel(role) {
+      const labels = { admin: 'Администратор', read_write: 'Редактиране', read_only: 'Само преглед' };
+      return labels[role] || role;
+    }
+
+    async function loadUsers() {
+      const res = await fetch('/api/users');
+      if (!res.ok) {
+        showMsg('Грешка при зареждане на потребителите.', 'error');
+        return;
+      }
+      const users = await res.json();
+      usersTbody.innerHTML = users.map(u => `
+        <tr data-id="${u.id}">
+          <td>${escapeHTML(u.username)}${u.username === currentUsername ? '<span class="self-tag">(вие)</span>' : ''}</td>
+          <td>
+            <select class="role-select" onchange="changeRole(${u.id}, this.value)" ${u.username === currentUsername ? 'disabled' : ''}>
+              <option value="read_only" ${u.role === 'read_only' ? 'selected' : ''}>Само преглед</option>
+              <option value="read_write" ${u.role === 'read_write' ? 'selected' : ''}>Редактиране</option>
+              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Администратор</option>
+            </select>
+          </td>
+          <td>${escapeHTML(u.created_at || '')}</td>
+          <td class="row-actions">
+            <button class="btn btn-secondary" onclick="resetPassword(${u.id}, ${escapeHTML(JSON.stringify(u.username))})"><i class="fa-solid fa-key"></i> Парола</button>
+            ${u.username === currentUsername ? '' : `<button class="btn btn-danger" onclick="deleteUser(${u.id}, ${escapeHTML(JSON.stringify(u.username))})"><i class="fa-solid fa-trash"></i></button>`}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function changeRole(id, role) {
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg(data.error || 'Грешка при смяна на ролята.', 'error');
+        loadUsers();
+        return;
+      }
+      showMsg('Ролята е обновена.', 'success');
+    }
+
+    async function resetPassword(id, username) {
+      const newPassword = prompt(`Нова парола за "${username}" (поне 8 символа):`);
+      if (!newPassword) return;
+      if (newPassword.length < 8) {
+        showMsg('Паролата трябва да е поне 8 символа.', 'error');
+        return;
+      }
+      const res = await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg(data.error || 'Грешка при смяна на паролата.', 'error');
+        return;
+      }
+      showMsg(`Паролата за "${username}" е сменена.`, 'success');
+    }
+
+    async function deleteUser(id, username) {
+      if (!confirm(`Да изтрия ли потребителя "${username}"?`)) return;
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg(data.error || 'Грешка при изтриване.', 'error');
+        return;
+      }
+      showMsg(`Потребителят "${username}" е изтрит.`, 'success');
+      loadUsers();
+    }
+
+    document.getElementById('create-user-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('new-username').value.trim();
+      const password = document.getElementById('new-password').value;
+      const role = document.getElementById('new-role').value;
+
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, role })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMsg(data.error || 'Грешка при създаване на потребител.', 'error');
+        return;
+      }
+      showMsg(`Потребителят "${username}" е създаден.`, 'success');
+      document.getElementById('create-user-form').reset();
+      loadUsers();
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>

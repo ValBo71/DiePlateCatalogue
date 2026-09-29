@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход | Каталог за Щанци & Клишета</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-color: #f1f5f9;
+      --panel-bg: #ffffff;
+      --panel-bg-secondary: #f8fafc;
+      --panel-border: rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #5b6b80;     /* 4.97:1 on the page background (AA) */
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --danger: #dc2626;
+      --msg-error-text: #b91c1c;
+      --msg-success-text: #047857;
+      --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.4);
+      --selection-bg: rgb(37 99 235 / 0.2);
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-headers: 'Manrope', sans-serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      padding: 2rem;
+    }
+    .login-title {
+      font-family: var(--font-headers);
+      font-weight: 800;
+      font-size: 1.3rem;
+      margin-bottom: 0.35rem;
+    }
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-muted); }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    .btn-submit {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      background-color: var(--primary-fill);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn-submit:hover { background-color: var(--primary-fill-hover); }
+    .error-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid var(--danger);
+      color: var(--msg-error-text);
+      padding: 0.65rem 0.85rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+  
+    /* Dark theme shared with the catalogue page (same localStorage key) */
+    body.dark-theme {
+      --bg-color: #0b0f19;
+      --panel-bg: #111827;
+      --panel-bg-secondary: #1f2937;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --msg-error-text: #fca5a5;
+      --msg-success-text: #6ee7b7;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      --focus-ring: 0 0 0 3px rgb(96 165 250 / 0.5);
+      --selection-bg: rgb(96 165 250 / 0.3);
+    }
+    body.dark-theme select option { background: var(--panel-bg); color: var(--text-color); }
+
+    /* Browser surfaces, focus and letterforms (see index.html) */
+    ::selection { background: var(--selection-bg); color: var(--text-color); }
+    html { accent-color: var(--primary); }
+    input { caret-color: var(--primary); }
+    h1, h2, .page-title, .card-title, .login-title { font-feature-settings: "locl" 0; }
+    :where(button, a, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    input:focus-visible, select:focus-visible { border-color: var(--primary); box-shadow: var(--focus-ring); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <script>
+    // Apply the theme chosen on the catalogue page before first paint
+    try { if (localStorage.getItem('catalog-theme') === 'dark') document.body.classList.add('dark-theme'); } catch (e) {}
+  </script>
+  <div class="login-card">
+    <h1 class="login-title">Каталог за Щанци & Клишета</h1>
+    <div class="login-subtitle">Моля, влезте с вашия акаунт</div>
+
+    {% if error %}
+    <div class="error-box">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label for="username">Потребителско име</label>
+        <input type="text" id="username" name="username" autofocus required>
+      </div>
+      <div class="form-group">
+        <label for="password">Парола</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn-submit">Вход</button>
+    </form>
+  </div>
+</body>
+</html>

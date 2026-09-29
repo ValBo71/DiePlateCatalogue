@@ -1,0 +1,4 @@
+# Upper bounds guard against breaking changes in future major releases, so a
+# fresh install on another computer keeps working the same way it does here.
+flask>=3.0.0,<4.0.0
+pymupdf>=1.24.0,<2.0.0

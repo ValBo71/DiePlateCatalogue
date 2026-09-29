@@ -1,0 +1,12 @@
+# Line endings are fixed per file type so a checkout works on every OS: the macOS launcher breaks with
+# CRLF (its shebang line would end in "\r"), and Windows batch files expect CRLF.
+* text=auto
+*.command text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.bat text eol=crlf
+
+*.db binary
+*.ico binary
+*.png binary
+*.pdf binary

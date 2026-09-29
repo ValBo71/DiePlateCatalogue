@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Моят акаунт | Каталог за Щанци & Клишета</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+    :root {
+      --bg-color: #f1f5f9;
+      --panel-bg: #ffffff;
+      --panel-bg-secondary: #f8fafc;
+      --panel-border: rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #5b6b80;     /* 4.97:1 on the page background (AA) */
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --success: #10b981;
+      --danger: #dc2626;
+      --msg-error-text: #b91c1c;
+      --msg-success-text: #047857;
+      --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.4);
+      --selection-bg: rgb(37 99 235 / 0.2);
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-headers: 'Manrope', sans-serif;
+    }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .page-container { max-width: 480px; margin: 0 auto; }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .top-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .top-bar a:hover { color: var(--text-color); }
+    .page-title { font-family: var(--font-headers); font-weight: 800; font-size: 1.3rem; margin-bottom: 0.25rem; }
+    .page-subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    .card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+    }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-muted); }
+    input[type="password"] {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+    .btn-submit {
+      padding: 0.75rem 1.5rem;
+      background-color: var(--primary-fill);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn-submit:hover { background-color: var(--primary-fill-hover); }
+    .msg-box { padding: 0.65rem 0.85rem; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    .msg-box.error { background: rgba(239, 68, 68, 0.08); border: 1px solid var(--danger); color: var(--msg-error-text); }
+    .msg-box.success { background: rgba(16, 185, 129, 0.08); border: 1px solid var(--success); color: var(--msg-success-text); }
+    .role-badge { color: var(--text-muted); font-size: 0.85rem; }
+  
+    /* Dark theme shared with the catalogue page (same localStorage key) */
+    body.dark-theme {
+      --bg-color: #0b0f19;
+      --panel-bg: #111827;
+      --panel-bg-secondary: #1f2937;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+      --msg-error-text: #fca5a5;
+      --msg-success-text: #6ee7b7;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      --focus-ring: 0 0 0 3px rgb(96 165 250 / 0.5);
+      --selection-bg: rgb(96 165 250 / 0.3);
+    }
+    body.dark-theme select option { background: var(--panel-bg); color: var(--text-color); }
+
+    /* Browser surfaces, focus and letterforms (see index.html) */
+    ::selection { background: var(--selection-bg); color: var(--text-color); }
+    html { accent-color: var(--primary); }
+    input { caret-color: var(--primary); }
+    h1, h2, .page-title, .card-title, .login-title { font-feature-settings: "locl" 0; }
+    :where(button, a, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+    input:focus-visible, select:focus-visible { border-color: var(--primary); box-shadow: var(--focus-ring); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <script>
+    // Apply the theme chosen on the catalogue page before first paint
+    try { if (localStorage.getItem('catalog-theme') === 'dark') document.body.classList.add('dark-theme'); } catch (e) {}
+  </script>
+  <div class="page-container">
+    <div class="top-bar">
+      <a href="/"><i class="fa-solid fa-arrow-left"></i> Обратно към каталога</a>
+      <a href="/logout">Изход <i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+
+    <h1 class="page-title">Моят акаунт</h1>
+    <div class="page-subtitle">{{ username }} &middot; <span class="role-badge">{{ role_label }}</span></div>
+
+    <div class="card">
+      <div id="msg-box" class="msg-box"></div>
+      <form id="password-form">
+        <div class="form-group">
+          <label for="current-password">Текуща парола</label>
+          <input type="password" id="current-password" required>
+        </div>
+        <div class="form-group">
+          <label for="new-password">Нова парола (поне 8 символа)</label>
+          <input type="password" id="new-password" required minlength="8">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Потвърди новата парола</label>
+          <input type="password" id="confirm-password" required minlength="8">
+        </div>
+        <button type="submit" class="btn-submit">Смени паролата</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('password-form');
+    const msgBox = document.getElementById('msg-box');
+
+    function showMsg(text, type) {
+      msgBox.textContent = text;
+      msgBox.className = `msg-box ${type}`;
+      msgBox.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (newPassword !== confirmPassword) {
+        showMsg('Новите пароли не съвпадат.', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/me/password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          showMsg(data.error || 'Възникна грешка.', 'error');
+          return;
+        }
+        showMsg('Паролата е сменена успешно.', 'success');
+        form.reset();
+      } catch (err) {
+        showMsg('Грешка при връзка със сървъра.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

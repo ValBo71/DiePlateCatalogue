@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Каталог за Щанци & Клишета</title>
+  
+  <!-- Google Fonts Inter & Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- QRCode.js Library (Local / Offline support) -->
+  <script src="/static/js/qrcode.min.js"></script>
+  
+  <style>
+    html {
+      font-size: 14px;
+    }
+
+    :root {
+      /* Light Theme (Flat Design) */
+      --bg-color: #f1f5f9;
+      --panel-bg: #ffffff;
+      --panel-bg-secondary: #f8fafc;
+      --panel-border: rgba(0, 0, 0, 0.08);
+      --text-color: #0f172a;
+      --text-muted: #5b6b80;     /* 4.97:1 on the page background (AA) */
+
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      /* Filled buttons: white text needs >= 4.5:1 in both themes */
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+
+      --color-die: #2563eb;      /* Blue for dies */
+      --color-emboss: #047857;   /* Green for prege */
+      --color-foil: #b45309;     /* Gold for foil */
+      --badge-text-die: #ffffff;
+      --badge-text-emboss: #ffffff;
+      --badge-text-foil: #ffffff;
+
+      --success: #10b981;        /* decorative (status dot) only - too light for text */
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      /* Status text colours, all >= 4.5:1 on panels */
+      --status-active: #047857;
+      --status-borrowed: #b45309;
+      --status-archived: #b91c1c;
+
+      --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.4);
+      --selection-bg: rgb(37 99 235 / 0.2);
+      
+      --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --transition-speed: 0.2s;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-headers: 'Manrope', sans-serif;
+    }
+
+    body.dark-theme {
+      /* Dark Theme */
+      --bg-color: #0b0f19;
+      --panel-bg: #111827;
+      --panel-bg-secondary: #1f2937;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text-color: #f3f4f6;
+      --text-muted: #9ca3af;
+      
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --primary-fill: #2563eb;
+      --primary-fill-hover: #1d4ed8;
+
+      --color-die: #2563eb;
+      --color-emboss: #10b981;
+      --color-foil: #fbbf24;
+      /* Light badges get dark text in the dark theme (white on amber was 1.67:1) */
+      --badge-text-die: #ffffff;
+      --badge-text-emboss: #052e16;
+      --badge-text-foil: #1c1917;
+
+      --status-active: #34d399;
+      --status-borrowed: #fbbf24;
+      --status-archived: #f87171;
+
+      --focus-ring: 0 0 0 3px rgb(96 165 250 / 0.5);
+      --selection-bg: rgb(96 165 250 / 0.3);
+      
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Flat design reset (No rounded corners) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-radius: 0 !important; /* Flat design enforcement */
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+      padding-bottom: 3rem;
+    }
+
+    h1, h2, h3, h4, h5, h6, .logo-text, .tab-btn, .modal-title {
+      font-family: var(--font-headers);
+    }
+
+    .app-container {
+      max-width: 1650px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--panel-border);
+      margin-bottom: 2rem;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      font-size: 2.2rem;
+      color: var(--primary);
+    }
+
+    .logo-text {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .network-badge {
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .network-status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      display: inline-block;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--panel-bg);
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .icon-btn:hover {
+      background-color: var(--panel-bg-secondary);
+      border-color: var(--text-muted);
+    }
+
+    .icon-btn-danger:hover {
+      background-color: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    /* User menu */
+    .user-menu {
+      position: relative;
+    }
+
+    .user-menu-btn {
+      width: auto;
+      padding: 0 0.9rem;
+      gap: 0.5rem;
+    }
+
+    .user-menu-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: var(--font-main);
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-menu-dropdown {
+      position: absolute;
+      top: calc(100% + 0.4rem);
+      right: 0;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      min-width: 190px;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-menu-role {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .user-menu-dropdown a {
+      padding: 0.65rem 0.9rem;
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-menu-dropdown a:hover {
+      background-color: var(--panel-bg-secondary);
+    }
+
+    /* Search & Filter Section */
+    .controls-panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .controls-row-top {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box-container {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      outline: none;
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      background: var(--panel-bg);
+    }
+
+    .filter-select {
+      padding: 0.75rem 2.5rem 0.75rem 1rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      outline: none;
+      font-family: var(--font-main);
+      font-size: 0.95rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.1rem;
+      min-width: 180px;
+    }
+
+    .filter-select:focus {
+      border-color: var(--primary);
+      background-color: var(--panel-bg);
+    }
+
+    /* Category Buttons (Tabs style) */
+    .category-tabs {
+      display: flex;
+      border: 1px solid var(--panel-border);
+      background-color: var(--panel-bg-secondary);
+      align-self: flex-start;
+      overflow: hidden;
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+      border-right: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tab-btn:last-child {
+      border-right: none;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-color);
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    body.dark-theme .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active[data-category="all"] {
+      background-color: var(--primary-fill);
+      color: #ffffff;
+    }
+    .tab-btn.active[data-category="die"] {
+      background-color: var(--color-die);
+      color: #ffffff;
+    }
+    .tab-btn.active[data-category="embossing"] {
+      background-color: var(--color-emboss);
+      color: #ffffff;
+    }
+    .tab-btn.active[data-category="foil"] {
+      background-color: var(--color-foil);
+      color: #ffffff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: var(--font-main);
+      border: none;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-fill);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-fill-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    body.dark-theme .btn-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: #ffffff;
+    }
+
+    .btn-danger:hover {
+      background-color: #b91c1c;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* Grid layout for Tool cards */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .tool-card {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform var(--transition-speed), border-color var(--transition-speed);
+      border-top: 4px solid var(--primary);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--text-muted);
+    }
+
+    .tool-card.die { border-top-color: var(--color-die); }
+    .tool-card.embossing { border-top-color: var(--color-emboss); }
+    .tool-card.foil { border-top-color: var(--color-foil); }
+
+    .card-image-wrapper {
+      height: 180px;
+      width: 100%;
+      background-color: var(--panel-bg-secondary);
+      border-bottom: 1px solid var(--panel-border);
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 0.5rem;
+      transition: transform var(--transition-speed);
+    }
+
+    .card-image-wrapper:hover .card-image {
+      transform: scale(1.03);
+    }
+
+    .no-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 0.5rem;
+    }
+
+    .no-image-icon {
+      font-size: 2.5rem;
+      opacity: 0.4;
+    }
+
+    .card-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      flex-grow: 1;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-code {
+      font-family: 'Consolas', Monaco, monospace;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-color);
+    }
+
+    .card-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .card-badge.die { background-color: var(--color-die); color: var(--badge-text-die); }
+    .card-badge.embossing { background-color: var(--color-emboss); color: var(--badge-text-emboss); }
+    .card-badge.foil { background-color: var(--color-foil); color: var(--badge-text-foil); }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-color);
+      line-height: 1.3;
+    }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      border-top: 1px dashed var(--panel-border);
+      border-bottom: 1px dashed var(--panel-border);
+      padding: 0.75rem 0;
+      margin: 0.25rem 0;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .detail-val {
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .location-tag {
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      padding: 0.1rem 0.4rem;
+      font-family: 'Consolas', Monaco, monospace;
+      white-space: nowrap;
+    }
+
+    .status-tag {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .status-tag.active { color: var(--status-active); }
+    .status-tag.archived { color: var(--status-archived); }
+    .status-tag.borrowed { color: var(--status-borrowed); }
+
+    .card-notes {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+      word-break: break-word;
+      max-height: 60px;
+      overflow-y: auto;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: auto;
+      border-top: 1px solid var(--panel-border);
+      padding-top: 1rem;
+    }
+
+    .card-actions .btn {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      padding: 0.4rem 0.15rem !important;
+      font-size: 0.7rem !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.12rem !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-anchor: middle !important;
+    }
+
+    .card-actions .btn i {
+      font-size: 0.72rem !important;
+    }
+
+    .card-actions .btn-danger {
+      flex: 0 0 32px !important;
+      width: 32px !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Read-only role: hide every add/edit/delete/copy control */
+    body.read-only-mode .write-action {
+      display: none !important;
+    }
+
+    /* Modal System */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      animation: modalSlideUp 0.25s ease-out;
+    }
+
+    @keyframes modalSlideUp {
+      from { transform: translateY(15px); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--panel-border);
+      background-color: var(--panel-bg-secondary);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.75rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--text-muted);
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-speed);
+    }
+
+    .close-btn:hover {
+      color: var(--text-color);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      background: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      font-family: var(--font-main);
+      outline: none;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      background-color: var(--panel-bg);
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.1rem;
+      padding-right: 2.5rem;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Drag and Drop Upload Area */
+    .file-upload-zone {
+      border: 2px dashed var(--panel-border);
+      background-color: var(--panel-bg-secondary);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .file-upload-zone:hover, .file-upload-zone.dragover {
+      border-color: var(--primary);
+      background-color: rgba(37, 99, 235, 0.02);
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .upload-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .file-preview-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .file-preview-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .file-preview-name {
+      font-weight: 600;
+      color: var(--primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Existing drawings gallery, shown while editing a tool */
+    .existing-drawings-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .existing-drawing-item {
+      position: relative;
+      height: 90px;
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .existing-drawing-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .existing-drawing-item .no-image-icon {
+      font-size: 1.6rem;
+    }
+
+    .existing-drawing-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      background-color: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 0.7rem;
+      padding: 0;
+    }
+
+    /* Numbered indicator for tools with more than one drawing */
+    .drawing-indicator {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+    }
+
+    .drawing-dot {
+      width: 22px;
+      height: 22px;
+      line-height: 22px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50%;
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .drawing-dot:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .drawing-dot.active {
+      background-color: var(--primary-fill);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .table-thumb-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-image-wrapper .drawing-indicator {
+      position: absolute;
+      left: 50%;
+      bottom: 0.4rem;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.45);
+      padding: 0.25rem;
+      border-radius: 999px;
+    }
+
+    .card-image-wrapper .drawing-dot {
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--panel-border);
+      background-color: var(--panel-bg-secondary);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    /* Fullscreen Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-image {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      color: #ffffff;
+      font-size: 2.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+
+    .lightbox-close:hover {
+      transform: scale(1.1);
+    }
+
+    /* Empty state */
+    .empty-state-panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      padding: 4rem 2rem;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      opacity: 0.3;
+    }
+
+    .empty-state-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    /* View Toggle CSS */
+    .view-toggle-container {
+      display: flex;
+      border: 1px solid var(--panel-border);
+      background-color: var(--panel-bg-secondary);
+      overflow: hidden;
+      align-self: stretch;
+    }
+    
+    .view-toggle-container .icon-btn {
+      border: none;
+      border-right: 1px solid var(--panel-border);
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+    }
+    
+    .view-toggle-container .icon-btn:last-child {
+      border-right: none;
+    }
+    
+    .view-toggle-container .icon-btn:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      color: var(--text-color);
+    }
+    
+    body.dark-theme .view-toggle-container .icon-btn:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    
+    .view-toggle-container .icon-btn.active {
+      background-color: var(--primary-fill);
+      color: #ffffff;
+    }
+
+    /* Table CSS */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .tools-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    
+    .tools-table th, .tools-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--panel-border);
+      vertical-align: middle;
+    }
+    
+    .tools-table th {
+      background-color: var(--panel-bg-secondary);
+      font-weight: 700;
+      color: var(--text-color);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+    
+    .tools-table tbody tr {
+      cursor: pointer;
+    }
+
+    .tools-table tbody tr:hover {
+      background-color: rgba(0, 0, 0, 0.015);
+    }
+    
+    body.dark-theme .tools-table tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.015);
+    }
+    
+    .table-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      cursor: zoom-in;
+      display: block;
+    }
+
+    .table-no-image {
+      font-size: 2.2rem;
+      color: var(--text-muted);
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+    }
+
+    .pagination-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--panel-border);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .pagination-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .pagination-buttons {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    .pagination-btn {
+      background-color: var(--panel-bg-secondary);
+      border: 1px solid var(--panel-border);
+      color: var(--text-color);
+      padding: 0.35rem 0.7rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed), transform var(--transition-speed);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background-color: rgba(0, 0, 0, 0.04);
+      border-color: var(--text-muted);
+    }
+
+    body.dark-theme .pagination-btn:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .pagination-btn.active {
+      background-color: var(--primary-fill) !important;
+      color: #ffffff !important;
+      border-color: var(--primary) !important;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pagination-limit {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Print styling for Labels */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #label-print-target {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      .print-label-container, .print-label-container * {
+        visibility: visible;
+      }
+      .print-label-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm;
+        height: 50mm;
+        border: 2px solid #000000 !important;
+        padding: 5mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        font-family: 'Consolas', Monaco, monospace;
+      }
+      .print-label-header {
+        font-size: 16pt;
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2mm;
+        margin-bottom: 2mm;
+      }
+      .print-label-details {
+        font-size: 11pt;
+        flex-grow: 1;
+      }
+      .print-label-code {
+        font-size: 20pt;
+        font-weight: 900;
+        text-align: center;
+        border: 1px solid #000;
+        padding: 1mm 0;
+        margin-top: 2mm;
+      }
+    }
+  
+    /* ===== Accessibility, responsive and browser-surface fixes (Impeccable audit) ===== */
+    .sr-only {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* Browser surfaces follow the palette */
+    ::selection { background: var(--selection-bg); color: var(--text-color); }
+    html { accent-color: var(--primary); }
+    input, textarea { caret-color: var(--primary); }
+    .tools-table td, .pagination-info, #qrcode-modal-code { font-variant-numeric: tabular-nums; }
+
+    /* Same letterforms in headings and body text: with lang="bg" Manrope switches to
+       its Bulgarian cursive-style forms (д, л, т...), Inter does not. */
+    h1, h2, h3, h4, h5, h6, .logo-text, .tab-btn, .modal-title { font-feature-settings: "locl" 0; }
+
+    /* Visible keyboard focus everywhere (inputs used to remove their outline) */
+    :where(button, a, select, [role="button"], [tabindex]):focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    .search-input:focus-visible, .filter-select:focus-visible, .form-control:focus-visible {
+      border-color: var(--primary);
+      box-shadow: var(--focus-ring);
+    }
+
+    /* Hidden modals must not be reachable with Tab */
+    .modal, .lightbox { visibility: hidden; transition: opacity 0.25s ease, visibility 0s linear 0.25s; }
+    .modal.active, .lightbox.active { visibility: visible; transition: opacity 0.25s ease, visibility 0s linear 0s; }
+
+    /* Clickable thumbnails and drawing dots are keyboard buttons now */
+    img[role="button"], div[role="button"], .drawing-dot { cursor: pointer; }
+
+    /* Tablet: header wraps instead of pushing controls off screen */
+    @media (max-width: 1000px) {
+      .app-header { flex-wrap: wrap; gap: 1rem; }
+      .header-actions { flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+    }
+
+    /* Phone */
+    @media (max-width: 640px) {
+      .app-header { padding: 1rem 0; margin-bottom: 1.25rem; }
+      .header-logo { flex: 1 1 100%; }
+      .logo-icon { font-size: 1.6rem; }
+      .logo-text { font-size: 1.2rem; line-height: 1.25; }
+      .header-actions { width: 100%; justify-content: flex-start; gap: 0.5rem; margin-left: 0; }
+      .network-badge { order: 3; flex: 1 1 100%; font-size: 0.8rem; padding: 0.4rem 0.75rem; }
+      .network-badge-url { overflow-wrap: anywhere; }
+      .user-menu { margin-right: auto; }
+
+      /* Four categories as a 2x2 grid instead of a clipped row */
+      .category-tabs { flex-wrap: wrap; align-self: stretch; }
+      .tab-btn { flex: 1 1 50%; justify-content: center; padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--panel-border); }
+      .tab-btn:nth-child(2n) { border-right: none; }
+      .tab-btn:nth-last-child(-n+2) { border-bottom: none; }
+    }
+
+    /* Touch screens: 44px minimum targets (WCAG 2.5.5 / platform guidance) */
+    @media (pointer: coarse) {
+      .icon-btn { width: 44px; height: 44px; }
+      .user-menu-btn { width: auto; min-width: 44px; }
+      .btn, .btn-sm, .pagination-btn { min-height: 44px; }
+      .tools-table .btn-sm, .card-actions .btn-danger { min-width: 44px !important; min-height: 44px; flex-basis: 44px !important; }
+      .drawing-dot { width: 32px; height: 32px; line-height: 32px; }
+      .view-toggle-container .icon-btn { width: 44px; height: 44px; }
+      .search-input, .filter-select, .tab-btn, .form-control { min-height: 44px; }
+      .pagination-btn { min-width: 44px; }
+      .close-btn, .lightbox-close { min-width: 44px; min-height: 44px; }
+    }
+
+    /* Reduced motion: keep the fades that show state changes, drop movement */
+    @media (prefers-reduced-motion: reduce) {
+      .modal-content { animation: modalFade 0.15s ease-out; }
+      .btn-primary:hover, .btn:hover, .tool-card:hover { transform: none !important; }
+      html { scroll-behavior: auto; }
+    }
+    @keyframes modalFade { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <!-- Hidden Container for barcode/label printing -->
+  <div id="label-print-target" class="hidden"></div>
+
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <i class="fa-solid fa-layer-group logo-icon"></i>
+        <div>
+          <h1 class="logo-text">КАТАЛОГ ЗА ЩАНЦИ & КЛИШЕТА</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="network-badge" title="Сървърът е активен в локалната мрежа">
+          <span class="network-status-dot" aria-hidden="true"></span>
+          <span class="network-badge-url">Мрежов достъп: http://{{ local_ip }}:5050</span>
+        </div>
+        <div class="user-menu">
+          <button id="user-menu-btn" class="icon-btn user-menu-btn" title="Профил" aria-label="Профил: {{ username }}" aria-haspopup="true" aria-expanded="false" aria-controls="user-menu-dropdown">
+            <i class="fa-solid fa-user"></i>
+            <span class="user-menu-label">{{ username }}</span>
+          </button>
+          <div id="user-menu-dropdown" class="user-menu-dropdown hidden">
+            <div class="user-menu-role">{{ role_label }}</div>
+            {% if role == 'admin' %}
+            <a href="/admin"><i class="fa-solid fa-user-gear"></i> Админ панел</a>
+            {% endif %}
+            <a href="/account"><i class="fa-solid fa-key"></i> Смяна на парола</a>
+            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Изход</a>
+          </div>
+        </div>
+        <button id="theme-toggle-btn" class="icon-btn" title="Смяна на темата" aria-label="Смяна на темата">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        {% if role == 'admin' %}
+        <button id="exit-app-btn" class="icon-btn icon-btn-danger" title="Спри сървъра и затвори" aria-label="Спри сървъра и затвори">
+          <i class="fa-solid fa-power-off"></i>
+        </button>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Controls & Filters -->
+    <section class="controls-panel">
+      <div class="controls-row-top">
+        <div class="search-box-container">
+          <label for="search-input" class="sr-only">Търсене в каталога</label>
+          <i class="fa-solid fa-magnifying-glass search-icon" aria-hidden="true"></i>
+          <input type="search" id="search-input"class="search-input" placeholder="Търсене по код, име, клиент, склад...">
+        </div>
+
+        <div class="search-box-container" style="max-width: 220px; min-width: 150px;">
+          <label for="dim-filter" class="sr-only">Филтър по размер</label>
+          <i class="fa-solid fa-ruler-combined search-icon" aria-hidden="true"></i>
+          <input type="text" id="dim-filter"class="search-input" placeholder="Размер (напр. 150)">
+        </div>
+        
+        <label for="status-filter" class="sr-only">Статус</label>
+        <select id="status-filter" class="filter-select">
+          <option value="all">Всички статуси</option>
+          <option value="active">В склада</option>
+          <option value="borrowed">Извън склада</option>
+          <option value="archived">Бракувани / Архив</option>
+        </select>
+
+        <div class="view-toggle-container">
+          <button id="btn-view-grid" class="icon-btn" title="Преглед като карти" aria-label="Преглед като карти" aria-pressed="false">
+            <i class="fa-solid fa-grip"></i>
+          </button>
+          <button id="btn-view-table" class="icon-btn active" title="Преглед като таблица" aria-label="Преглед като таблица" aria-pressed="true">
+            <i class="fa-solid fa-table-list"></i>
+          </button>
+        </div>
+        
+        <button id="btn-open-add-modal" class="btn btn-primary write-action">
+          <i class="fa-solid fa-plus"></i> Нов Инструмент
+        </button>
+      </div>
+      
+      <div class="category-tabs" id="category-tabs-container" role="group" aria-label="Категория">
+        <button class="tab-btn active" data-category="all">
+          <i class="fa-solid fa-list"></i> Всички
+        </button>
+        <button class="tab-btn" data-category="die">
+          <i class="fa-solid fa-box-open"></i> Щанци
+        </button>
+        <button class="tab-btn" data-category="embossing">
+          <i class="fa-solid fa-stamp"></i> Преге клишета
+        </button>
+        <button class="tab-btn" data-category="foil">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Топъл печат
+        </button>
+      </div>
+    </section>
+
+    <!-- Tools Containers (Grid / Table) -->
+    <main style="margin-top: 1rem;">
+      <h2 class="sr-only">Инструменти</h2>
+      <!-- Grid View Container -->
+      <div id="tools-grid-container" class="tools-grid hidden">
+        <!-- Cards will load dynamically -->
+      </div>
+      
+      <!-- Table View Container -->
+      <div id="tools-table-container" class="table-responsive">
+        <table class="tools-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">Чертеж</th>
+              <th style="width: 100px;">Код</th>
+              <th style="width: 90px;">Тип</th>
+              <th>Име / Описание</th>
+              <th>Клиент</th>
+              <th>Размери</th>
+              <th style="width: 80px; text-align: center;">Гнезда</th>
+              <th>Спецификация</th>
+              <th>Склад</th>
+              <th>Статус</th>
+              <th style="width: 190px; text-align: center;">Действия</th>
+            </tr>
+          </thead>
+          <tbody id="tools-table-body">
+            <!-- Table rows will load dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div id="pagination-container" class="pagination-bar">
+        <div class="pagination-info">
+          Показани <span id="pagination-range">0-0</span> от <span id="pagination-total">0</span> инструмента
+        </div>
+        <div class="pagination-buttons" id="pagination-buttons">
+          <!-- Page numbers will load dynamically -->
+        </div>
+        <div class="pagination-limit">
+          <label for="pagination-size">Редове на страница:</label>
+          <select id="pagination-size"class="filter-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.85rem;">
+            <option value="10">10</option>
+            <option value="25">25</option>
+          </select>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer" style="text-align: center; margin-top: 3rem; padding: 1.5rem 0; border-top: 1px solid var(--panel-border); font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+      <div>Създадено от ValBo &copy; 2026</div>
+      <div style="font-weight: 500; font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem;">версия 1.0.0</div>
+    </footer>
+
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div class="modal" id="tool-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title-text">Добавяне на Нов Инструмент</h2>
+        <button class="close-btn" id="btn-close-modal" aria-label="Затвори">&times;</button>
+      </div>
+      <form id="tool-form" autocomplete="off">
+        <div class="modal-body">
+          <input type="hidden" id="tool-id">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tool-category">Категория на инструмента *</label>
+              <select id="tool-category" class="form-control" required>
+                <option value="" disabled selected>Изберете тип...</option>
+                <option value="die">Щанца (SH)</option>
+                <option value="embossing">Клише за Преге (PR)</option>
+                <option value="foil">Клише за Топъл печат (TP)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="tool-code">Идентификационен Код</label>
+              <input type="text" id="tool-code" class="form-control" placeholder="Оставете празно за автоматичен код">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="tool-name">Име / Описание на инструмента *</label>
+            <input type="text" id="tool-name" class="form-control" placeholder="напр. Кутия за подарък A4, Лого 50x50" required>
+          </div>
+
+          <!-- Specific Fields for Dies only -->
+          <div id="die-specific-fields" class="hidden" style="border: 1px solid var(--panel-border); background-color: var(--panel-bg-secondary); padding: 1rem; margin-bottom: 1.25rem;">
+            <h3 style="margin-bottom: 0.75rem; font-size: 0.95rem;font-weight: 700; border-bottom: 1px solid var(--panel-border); padding-bottom: 0.25rem; color: var(--primary);"><i class="fa-solid fa-gears"></i> Спецификации на щанцата</h3>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="tool-die-shape">Вид/Форма на щанцата</label>
+                <select id="tool-die-shape" class="form-control">
+                  <option value="" selected>Изберете форма...</option>
+                  <option value="box">Кутия / Опаковка</option>
+                  <option value="folder">Папка</option>
+                  <option value="circle">Кръг</option>
+                  <option value="oval">Овал</option>
+                  <option value="playing_cards">Карти за игра</option>
+                  <option value="label">Етикет</option>
+                  <option value="envelope">Плик</option>
+                  <option value="custom">Нестандартна / Друга</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="tool-die-type">Технически вид на щанцата</label>
+                <select id="tool-die-type" class="form-control">
+                  <option value="" selected>Изберете вид...</option>
+                  <option value="flat">Плоска (Flatbed) - Стандартен тигел/машина</option>
+                  <option value="cylindrical">Цилиндрична / Ротационна (Rotary)</option>
+                  <option value="plunger">Бутална (Plunger) - Пакетно рязане с натиск</option>
+                  <option value="steel_rule">Лентова (Steel Rule)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Size of single item -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="font-weight: 700; display: block; margin-bottom: 0.5rem; color: var(--text-color);">Размер на единичното изделие (мм) *</label>
+              <div id="single-item-size-inputs-wrapper" style="display: flex; gap: 0.5rem; align-items: center;">
+                <!-- Will be dynamically populated by JS -->
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-bottom: 0;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="tool-ups">Брой размножения (гнезда)</label>
+                <input type="number" id="tool-ups" class="form-control" min="1" value="1" placeholder="напр. 1, 2, 4, 10">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="tool-material">Предназначена за материал</label>
+                <select id="tool-material" class="form-control">
+                  <option value="" selected>Изберете материал...</option>
+                  <option value="paper">Хартия</option>
+                  <option value="cardboard">Картон (опаковъчен)</option>
+                  <option value="greyboard">Мукава</option>
+                  <option value="corrugated">Велпапе</option>
+                  <option value="plastic">Пластмаса / Фолио</option>
+                  <option value="other">Друг</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem; border-top: 1px dashed var(--panel-border); padding-top: 0.5rem; line-height: 1.4; text-align: left;">
+              <strong>Справка за видове щанци:</strong><br>
+              • <em>Плоска:</em> Подходяща за папки, стандартни кутии, пликове и малки/средни тиражи.<br>
+              • <em>Цилиндрична:</em> Подходяща за ротационни машини, велпапе, кутии за цигари, етикети на ролка.<br>
+              • <em>Бутална:</em> Подходяща за пакетно щанцоване на етикети, овални форми и карти за игра.
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tool-client">Клиент / Поръчка</label>
+              <input type="text" id="tool-client" class="form-control" placeholder="напр. Софарма, №12543">
+            </div>
+            <div class="form-group">
+              <label for="tool-status">Статус</label>
+              <select id="tool-status" class="form-control">
+                <option value="active">В склада</option>
+                <option value="borrowed">Извън склада / При клиента</option>
+                <option value="archived">Бракуван / Архивиран</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tool-dimensions">Размери (мм)</label>
+              <input type="text" id="tool-dimensions" class="form-control" placeholder="напр. 150x200 mm">
+            </div>
+            <div class="form-group">
+              <label for="tool-location">Местоположение в склада *</label>
+              <input type="text" id="tool-location" class="form-control" placeholder="напр. A-3-12 (Сектор-Рафт-Кутия)" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Чертежи на инструмента (може да добавите няколко)</label>
+            <div id="existing-drawings-gallery" class="existing-drawings-gallery hidden"></div>
+            <div class="file-upload-zone" id="file-upload-zone">
+              <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+              <span class="upload-text">Кликнете или провлачете чертежи тук (можете да изберете няколко наведнъж)</span>
+              <span class="upload-hint">Формати: JPG, PNG, PDF, SVG. Максимум 16MB на файл.</span>
+              <input type="file" id="file-input" accept="image/*,application/pdf" multiple style="display: none;">
+            </div>
+            <div id="file-preview-list" class="file-preview-list"></div>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label for="tool-file-path">Път до оригиналния CAD / дизайн файл на диска</label>
+            <input type="text" id="tool-file-path" class="form-control" placeholder="напр. D:\\Designs\\Box_120x80.dxf">
+          </div>
+
+          <div class="form-group">
+            <label for="tool-notes">Допълнителни бележки</label>
+            <textarea id="tool-notes" class="form-control" placeholder="Технически спецификации, история или особености..."></textarea>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Отказ</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-tool">Запази</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Чертеж">
+    <button class="lightbox-close" id="btn-close-lightbox" aria-label="Затвори">&times;</button>
+    <img alt="Детайлен чертеж" class="lightbox-image" id="lightbox-img">
+  </div>
+
+  <!-- QR CODE MODAL -->
+  <div class="modal" id="qrcode-modal" role="dialog" aria-modal="true" aria-labelledby="qrcode-modal-title">
+    <div class="modal-content" style="max-width: 400px; text-align: center; border-radius: 4px; overflow: hidden;">
+      <div class="modal-header">
+        <h2 class="modal-title" id="qrcode-modal-title" style="font-weight: 700; font-family: var(--font-headers);">QR Код за Склад</h2>
+        <button class="close-btn" id="btn-close-qrcode-modal" aria-label="Затвори">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+        <div id="qrcode-modal-target" style="padding: 12px; background: #ffffff; border: 1px solid var(--panel-border); border-radius: 4px; display: inline-block;"></div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin: 0; max-width: 280px;">
+          Сканирайте с мобилно устройство за моментален достъп до детайлите и чертежа на инструмента.
+        </p>
+        <div style="font-family: 'Consolas', Monaco, monospace; font-weight: bold; font-size: 1.2rem; color: var(--primary); background: var(--panel-bg-secondary); padding: 0.4rem 1rem; border: 1px dashed var(--panel-border); border-radius: 4px; letter-spacing: 0.5px;" id="qrcode-modal-code"></div>
+        <button class="btn btn-primary" id="btn-download-qrcode" style="width: 100%; justify-content: center; gap: 0.5rem;">
+          <i class="fa-solid fa-download"></i> Свали изображение
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State variables
+    let tools = [];
+    let currentCategory = 'all';
+    let currentStatus = 'all';
+    let searchQuery = '';
+    let dimQuery = '';
+    let currentViewMode = 'table'; // Grid or Table
+    let selectedFiles = [];
+    let deletedDrawingIds = [];
+    let isEditing = false;
+    let currentPage = 1;
+    let pageSize = 10;
+    let activeDrawingIndex = {}; // tool id -> index of the drawing currently shown in its preview
+
+    // DOM Elements
+    const toolsGridContainer = document.getElementById('tools-grid-container');
+    const toolsTableContainer = document.getElementById('tools-table-container');
+    const toolsTableBody = document.getElementById('tools-table-body');
+    const btnViewGrid = document.getElementById('btn-view-grid');
+    const btnViewTable = document.getElementById('btn-view-table');
+    
+    const searchInput = document.getElementById('search-input');
+    const dimFilter = document.getElementById('dim-filter');
+    const statusFilter = document.getElementById('status-filter');
+    const categoryTabsContainer = document.getElementById('category-tabs-container');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    
+    const paginationContainer = document.getElementById('pagination-container');
+    const paginationRange = document.getElementById('pagination-range');
+    const paginationTotal = document.getElementById('pagination-total');
+    const paginationButtons = document.getElementById('pagination-buttons');
+    const paginationSizeSelect = document.getElementById('pagination-size');
+    
+    // Modal Elements
+    const toolModal = document.getElementById('tool-modal');
+    const toolForm = document.getElementById('tool-form');
+    const modalTitleText = document.getElementById('modal-title-text');
+    const toolIdInput = document.getElementById('tool-id');
+    const toolCategorySelect = document.getElementById('tool-category');
+    const toolCodeInput = document.getElementById('tool-code');
+    const toolNameInput = document.getElementById('tool-name');
+    const toolClientInput = document.getElementById('tool-client');
+    const toolStatusSelect = document.getElementById('tool-status');
+    const toolDimensionsInput = document.getElementById('tool-dimensions');
+    const toolLocationInput = document.getElementById('tool-location');
+    const toolNotesInput = document.getElementById('tool-notes');
+    const toolFilePathInput = document.getElementById('tool-file-path');
+    
+    // New Die Specific Selectors
+    const toolDieShapeSelect = document.getElementById('tool-die-shape');
+    const toolDieTypeSelect = document.getElementById('tool-die-type');
+    const toolUpsInput = document.getElementById('tool-ups');
+    const toolMaterialSelect = document.getElementById('tool-material');
+    const dieSpecificFieldsDiv = document.getElementById('die-specific-fields');
+    const singleItemSizeInputsWrapper = document.getElementById('single-item-size-inputs-wrapper');
+    
+    // File Upload Elements
+    const fileUploadZone = document.getElementById('file-upload-zone');
+    const fileInput = document.getElementById('file-input');
+    const filePreviewList = document.getElementById('file-preview-list');
+    const existingDrawingsGallery = document.getElementById('existing-drawings-gallery');
+    
+    // Buttons
+    const btnOpenAddModal = document.getElementById('btn-open-add-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+    
+    // Lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const btnCloseLightbox = document.getElementById('btn-close-lightbox');
+
+    // QR Code Modal
+    const qrcodeModal = document.getElementById('qrcode-modal');
+    const qrcodeModalTarget = document.getElementById('qrcode-modal-target');
+    const qrcodeModalCode = document.getElementById('qrcode-modal-code');
+    const btnCloseQrcodeModal = document.getElementById('btn-close-qrcode-modal');
+    const btnDownloadQrcode = document.getElementById('btn-download-qrcode');
+
+    // Page Load
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      // QR codes on labels open /?q=<code>: start with that search already applied
+      const initialQuery = new URLSearchParams(window.location.search).get('q');
+      if (initialQuery) {
+        searchQuery = initialQuery.trim();
+        searchInput.value = searchQuery;
+      }
+      fetchTools();
+      setupEventListeners();
+    });
+
+    // Theme Management
+    function initTheme() {
+      const savedTheme = localStorage.getItem('catalog-theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      } else {
+        document.body.classList.remove('dark-theme');
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      }
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('catalog-theme', 'light');
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      } else {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('catalog-theme', 'dark');
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      }
+    });
+
+    // Exit button: stops the server (closing the terminal window it runs in)
+    // and then closes this browser tab.
+    const exitAppBtn = document.getElementById('exit-app-btn');
+    if (exitAppBtn) {
+      exitAppBtn.addEventListener('click', async () => {
+        const confirmed = confirm('Сигурни ли сте, че искате да спрете сървъра? Всички потребители в мрежата ще бъдат изключени.');
+        if (!confirmed) return;
+
+        try {
+          await fetch('/api/shutdown', { method: 'POST' });
+        } catch (e) {
+          // The connection may drop as soon as the server exits - that's expected.
+        }
+
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;font-size:1.2rem;text-align:center;padding:2rem;">Сървърът е спрян.<br>Можете да затворите този таб.</div>';
+        window.close();
+      });
+    }
+
+    // User menu dropdown
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const userMenuDropdown = document.getElementById('user-menu-dropdown');
+    userMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userMenuDropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!userMenuDropdown.contains(e.target) && e.target !== userMenuBtn) {
+        userMenuDropdown.classList.add('hidden');
+      }
+    });
+
+    // Role-based UI: read-only users cannot add/edit/delete/copy tools
+    const currentUserRole = {{ role|tojson }};
+    const canWrite = currentUserRole === 'admin' || currentUserRole === 'read_write';
+    if (!canWrite) {
+      document.body.classList.add('read-only-mode');
+    }
+
+    function fetchTools(resetPage = true) {
+      if (resetPage) {
+        currentPage = 1;
+      }
+      const url = `/api/tools?q=${encodeURIComponent(searchQuery)}&category=${currentCategory}&status=${currentStatus}&dim=${encodeURIComponent(dimQuery)}`;
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          tools = data;
+          renderTools();
+        })
+        .catch(err => {
+          console.error("Грешка при зареждане на инструментите:", err);
+          const errorHtml = `
+            <div class="empty-state-panel" style="grid-column: 1/-1; width: 100%;">
+              <i class="fa-solid fa-circle-exclamation empty-state-icon text-danger" style="opacity: 1;"></i>
+              <div class="empty-state-title">Грешка при връзка със сървъра</div>
+              <p>Моля проверете дали Flask сървърът работи.</p>
+            </div>
+          `;
+          if (currentViewMode === 'grid') {
+            toolsGridContainer.innerHTML = errorHtml;
+          } else {
+            toolsTableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--danger); padding: 2rem;"><strong>Грешка при връзка със сървъра</strong></td></tr>`;
+          }
+        });
+    }
+
+    // Render Tools Grid
+    // Render Tools Grid or Table
+    function renderTools() {
+      // Clear both containers
+      toolsGridContainer.innerHTML = '';
+      toolsTableBody.innerHTML = '';
+      
+      if (tools.length === 0) {
+        paginationContainer.style.display = 'none';
+        const emptyStateHtml = `
+          <div class="empty-state-panel" style="grid-column: 1/-1; width: 100%;">
+            <i class="fa-solid fa-magnifying-glass empty-state-icon"></i>
+            <div class="empty-state-title">Няма открити инструменти</div>
+            <p>Променете филтрите за търсене или добавете нов инструмент от бутона по-горе.</p>
+          </div>
+        `;
+        if (currentViewMode === 'grid') {
+          toolsGridContainer.innerHTML = emptyStateHtml;
+          toolsGridContainer.classList.remove('hidden');
+          toolsTableContainer.classList.add('hidden');
+        } else {
+          toolsTableBody.innerHTML = `
+            <tr>
+              <td colspan="10" style="text-align: center; padding: 3rem;">
+                <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; opacity: 0.3; margin-bottom: 1rem; display: block; color: var(--text-muted);"></i>
+                <strong>Няма открити инструменти</strong><br>
+                <span style="font-size: 0.9rem; color: var(--text-muted);">Променете филтрите за търсене или добавете нов инструмент.</span>
+              </td>
+            </tr>
+          `;
+          toolsGridContainer.classList.add('hidden');
+          toolsTableContainer.classList.remove('hidden');
+        }
+        return;
+      }
+
+      paginationContainer.style.display = 'flex';
+      const totalItems = tools.length;
+      const totalPages = Math.ceil(totalItems / pageSize) || 1;
+      
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+      
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalItems);
+      
+      paginationRange.textContent = `${startIndex + 1}-${endIndex}`;
+      paginationTotal.textContent = totalItems;
+      
+      const pageTools = tools.slice(startIndex, endIndex);
+      renderPaginationButtons(totalPages);
+
+      if (currentViewMode === 'grid') {
+        toolsGridContainer.classList.remove('hidden');
+        toolsTableContainer.classList.add('hidden');
+        
+        pageTools.forEach(t => {
+          const card = document.createElement('article');
+          card.className = `tool-card ${cssToken(t.category)}`;
+          card.title = "Двоен клик за бърза редакция";
+          
+          card.addEventListener('dblclick', (e) => {
+            if (!canWrite) return;
+            if (e.target.closest('.card-actions') || e.target.closest('button') || e.target.closest('img')) return;
+            openEditModal(t.id);
+          });
+          
+          const cardActiveDrawing = getActiveDrawing(t);
+          const imgHtml = cardActiveDrawing
+            ? buildDrawingImgHtml(t, cardActiveDrawing, 'card-image', 'no-image-placeholder') + buildDrawingIndicatorHtml(t)
+            : `
+              <div class="no-image-placeholder">
+                <i class="fa-regular fa-image no-image-icon"></i>
+                <span style="font-size: 0.8rem;">Няма качена графика</span>
+              </div>
+            `;
+
+          const categoryName = t.category === 'die' ? 'Щанца' : (t.category === 'embossing' ? 'Преге' : 'Топъл печат');
+          const statusName = t.status === 'active' ? 'В склада' : (t.status === 'borrowed' ? 'Извън склада' : 'Бракуван');
+
+          // Build specific die details block
+          let dieDetailsHtml = '';
+          if (t.category === 'die') {
+            const shapeLabels = {
+              'box': 'Кутия / Опаковка',
+              'folder': 'Папка',
+              'circle': 'Кръг',
+              'oval': 'Овал',
+              'playing_cards': 'Карти за игра',
+              'label': 'Етикет',
+              'envelope': 'Плик',
+              'custom': 'Нестандартна / Друга'
+            };
+            const typeLabels = {
+              'flat': 'Плоска (Flatbed)',
+              'cylindrical': 'Цилиндрична (Rotary)',
+              'plunger': 'Бутална (Plunger)',
+              'steel_rule': 'Лентова'
+            };
+            const materialLabels = {
+              'paper': 'Хартия',
+              'cardboard': 'Картон',
+              'greyboard': 'Мукава',
+              'corrugated': 'Велпапе',
+              'plastic': 'Пластмаса/Фолио',
+              'other': 'Друг'
+            };
+
+            const shapeName = shapeLabels[t.die_shape] || t.die_shape || '–';
+            const typeName = typeLabels[t.die_type] || t.die_type || '–';
+            const materialName = materialLabels[t.material] || t.material || '–';
+            const upsCount = t.ups || 1;
+
+            dieDetailsHtml = `
+              <div class="card-details" style="margin-top: 0; border-top: none; background-color: var(--panel-bg-secondary); padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                <div class="detail-item">
+                  <span class="detail-label">Форма/Вид:</span>
+                  <span class="detail-val">${escapeHTML(shapeName)}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Техн. вид:</span>
+                  <span class="detail-val">${escapeHTML(typeName)}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Размножения:</span>
+                  <span class="detail-val" style="color: var(--color-die); font-weight: bold;">${upsCount} гнездо/а</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Материал:</span>
+                  <span class="detail-val">${escapeHTML(materialName)}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Размер на плочата:</span>
+                  <span class="detail-val">${escapeHTML(t.dimensions || '–')}</span>
+                </div>
+              </div>
+            `;
+          }
+
+          card.innerHTML = `
+            <div class="card-image-wrapper" data-card-image-wrapper="${t.id}">
+              ${imgHtml}
+            </div>
+            <div class="card-content">
+              <div class="card-header-row">
+                <span class="card-code">${escapeHTML(t.code)}</span>
+                <span class="card-badge ${cssToken(t.category)}">${categoryName}</span>
+              </div>
+              <h3 class="card-title" title="${escapeHTML(t.name)}">${escapeHTML(t.name)}</h3>
+              <div class="card-details" style="${t.category === 'die' ? 'margin-bottom: 0; border-bottom: none;' : ''}">
+                <div class="detail-item">
+                  <span class="detail-label">Клиент:</span>
+                  <span class="detail-val">${escapeHTML(t.client || '–')}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">${t.category === 'die' ? 'Размери на детайла:' : 'Размери:'}</span>
+                  <span class="detail-val" style="${t.category === 'die' ? 'color: var(--primary); font-weight: bold;' : ''}">
+                    ${escapeHTML(t.category === 'die' ? (t.single_item_dimensions || '–') : (t.dimensions || '–'))}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Местоположение:</span>
+                  <span class="detail-val"><span class="location-tag">${escapeHTML(t.location)}</span></span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Статус:</span>
+                  <span class="detail-val status-tag ${cssToken(t.status)}">${statusName}</span>
+                </div>
+                ${t.file_path ? `
+                <div class="detail-item" style="grid-column: span 2; font-size: 0.75rem; border-top: 1px dashed var(--panel-border); padding-top: 0.25rem; margin-top: 0.25rem;">
+                  <span class="detail-label" style="display: inline; font-weight: bold;"><i class="fa-solid fa-file-code"></i> CAD файл:</span>
+                  <span class="detail-val" style="display: inline; font-family: monospace; word-break: break-all; color: var(--text-muted);" title="${escapeHTML(t.file_path)}">${escapeHTML(t.file_path)}</span>
+                </div>
+                ` : ''}
+              </div>
+              
+              ${dieDetailsHtml}
+              
+              ${t.notes ? `<p class="card-notes" title="${escapeHTML(t.notes)}">${escapeHTML(t.notes)}</p>` : ''}
+              
+              <div class="card-actions">
+                <button class="btn btn-secondary" onclick="printLabel(${t.id})" title="Принтирай етикет за склада">
+                  <i class="fa-solid fa-print"></i> Етикет
+                </button>
+                <button class="btn btn-secondary" onclick="openQrcodeModal(${t.id})" title="Виж QR код за склада">
+                  <i class="fa-solid fa-qrcode"></i> QR
+                </button>
+                ${(t.drawings && t.drawings.length > 0) ? `
+                <button class="btn btn-secondary" onclick="downloadDrawings(${t.id})" title="Свали всички чертежи като архив">
+                  <i class="fa-solid fa-download"></i> Свали
+                </button>
+                ` : ''}
+                <button class="btn btn-secondary write-action" onclick="exportDesignFile(${t.id})" title="Копирай файл(ове) в папка">
+                  <i class="fa-solid fa-copy"></i> Копирай
+                </button>
+                <button class="btn btn-secondary write-action" onclick="openEditModal(${t.id})">
+                  <i class="fa-solid fa-pen-to-square"></i> Ред.
+                </button>
+                <button class="btn btn-danger btn-sm write-action" onclick="deleteTool(${t.id}, ${escapeHTML(JSON.stringify(t.code))})" title="Изтрий" aria-label="Изтрий ${escapeHTML(t.code)}">
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          `;
+          toolsGridContainer.appendChild(card);
+        });
+      } else {
+        toolsGridContainer.classList.add('hidden');
+        toolsTableContainer.classList.remove('hidden');
+
+        pageTools.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.title = "Двоен клик за бърза редакция";
+          
+          tr.addEventListener('dblclick', (e) => {
+            if (!canWrite) return;
+            if (e.target.closest('td:last-child') || e.target.closest('button') || e.target.closest('img')) return;
+            openEditModal(t.id);
+          });
+          
+          const tableActiveDrawing = getActiveDrawing(t);
+          const imgHtml = buildDrawingImgHtml(t, tableActiveDrawing, 'table-thumbnail', 'table-no-image')
+            + buildDrawingIndicatorHtml(t);
+
+          const categoryName = t.category === 'die' ? 'Щанца' : (t.category === 'embossing' ? 'Преге' : 'Топъл печат');
+          const statusName = t.status === 'active' ? 'В склада' : (t.status === 'borrowed' ? 'Извън склада' : 'Бракуван');
+          
+          let displayDimensions = t.dimensions || '–';
+          let displayUps = '–';
+          let specText = '–';
+          
+          if (t.category === 'die') {
+            displayDimensions = t.single_item_dimensions || '–';
+            displayUps = t.ups ? `${t.ups} гн.` : '1 гн.';
+            
+            const shapeLabels = {
+              'box': 'Кутия', 'folder': 'Папка', 'circle': 'Кръг', 'oval': 'Овал', 
+              'playing_cards': 'Карти', 'label': 'Етикет', 'envelope': 'Плик', 'custom': 'Друга'
+            };
+            const typeLabels = { 'flat': 'Плоска', 'cylindrical': 'Ротационна', 'plunger': 'Бутална', 'steel_rule': 'Лентова' };
+            const materialLabels = { 'paper': 'Хартия', 'cardboard': 'Картон', 'greyboard': 'Мукава', 'corrugated': 'Велпапе', 'plastic': 'Пластмаса', 'other': 'Друг' };
+            
+            const shape = shapeLabels[t.die_shape] || '';
+            const type = typeLabels[t.die_type] || '';
+            const mat = materialLabels[t.material] || '';
+            const boardSize = t.dimensions ? `Габарити: ${t.dimensions}` : '';
+            
+            const parts = [shape, type, mat, boardSize].filter(p => p !== '');
+            specText = parts.join(', ') || 'Попълнена';
+          }
+
+          tr.innerHTML = `
+            <td><div class="table-thumb-cell" data-thumb-cell="${t.id}">${imgHtml}</div></td>
+            <td style="font-family: monospace; font-weight: bold; font-size: 0.95rem;">${escapeHTML(t.code)}</td>
+            <td><span class="card-badge ${cssToken(t.category)}" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">${categoryName}</span></td>
+            <td style="font-weight: 600;" title="${escapeHTML(t.notes || '')}">${escapeHTML(t.name)}</td>
+            <td>${escapeHTML(t.client || '–')}</td>
+            <td style="${t.category === 'die' ? 'color: var(--primary); font-weight: bold;' : ''}">${escapeHTML(displayDimensions)}</td>
+            <td style="font-weight: bold; text-align: center;">${escapeHTML(displayUps)}</td>
+            <td style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">${escapeHTML(specText)}</td>
+            <td><span class="location-tag" style="font-size: 0.85rem;">${escapeHTML(t.location)}</span></td>
+            <td><span class="status-tag ${cssToken(t.status)}" style="font-size: 0.8rem;">${statusName}</span></td>
+            <td style="text-align: center;">
+              <button class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="printLabel(${t.id})" title="Етикет">
+                <i class="fa-solid fa-print"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="openQrcodeModal(${t.id})" title="QR код">
+                <i class="fa-solid fa-qrcode"></i>
+              </button>
+              ${(t.drawings && t.drawings.length > 0) ? `
+              <button class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="downloadDrawings(${t.id})" title="Свали всички чертежи като архив">
+                <i class="fa-solid fa-download"></i>
+              </button>
+              ` : ''}
+              <button class="btn btn-secondary btn-sm write-action" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="exportDesignFile(${t.id})" title="Копирай файлове">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm write-action" style="padding: 0.35rem 0.6rem; font-size: 0.8rem;" onclick="openEditModal(${t.id})" title="Редактирай" aria-label="Редактирай ${escapeHTML(t.code)}">
+                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+              </button>
+              <button class="btn btn-danger btn-sm write-action" style="padding: 0.35rem 0.5rem; font-size: 0.8rem;" onclick="deleteTool(${t.id}, ${escapeHTML(JSON.stringify(t.code))})" title="Изтрий" aria-label="Изтрий ${escapeHTML(t.code)}">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+            </td>
+          `;
+          toolsTableBody.appendChild(tr);
+        });
+      }
+    }
+
+    function renderPaginationButtons(totalPages) {
+      paginationButtons.innerHTML = '';
+      
+      // Previous Button
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'pagination-btn';
+      prevBtn.setAttribute('aria-label', 'Предишна страница');
+      prevBtn.innerHTML = '<i class="fa-solid fa-angle-left"></i>';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.addEventListener('click', () => {
+        currentPage--;
+        renderTools();
+      });
+      paginationButtons.appendChild(prevBtn);
+      
+      // Numeric Page Buttons
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = `pagination-btn ${currentPage === i ? 'active' : ''}`;
+        btn.textContent = i;
+        btn.addEventListener('click', () => {
+          currentPage = i;
+          renderTools();
+        });
+        paginationButtons.appendChild(btn);
+      }
+      
+      // Next Button
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'pagination-btn';
+      nextBtn.setAttribute('aria-label', 'Следваща страница');
+      nextBtn.innerHTML = '<i class="fa-solid fa-angle-right"></i>';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.addEventListener('click', () => {
+        currentPage++;
+        renderTools();
+      });
+      paginationButtons.appendChild(nextBtn);
+    }
+
+    // Set up Event Listeners
+    // Helper: Dynamic single item dimensions form fields based on shape selection
+    function updateSingleItemSizeInputs(shape, initialValue = '') {
+      singleItemSizeInputsWrapper.innerHTML = '';
+      
+      const numbers = [];
+      if (initialValue) {
+        // Find all integer matches
+        const matches = initialValue.match(/\d+/g);
+        if (matches) {
+          matches.forEach(m => numbers.push(parseInt(m)));
+        }
+      }
+
+      if (shape === 'box') {
+        // 3 dimensions: W x L x H
+        singleItemSizeInputsWrapper.innerHTML = `
+          <input type="number" id="single-dim-w" class="form-control" placeholder="Ширина (W)" min="1" value="${numbers[0] || ''}" style="flex: 1;" required>
+          <span style="color: var(--text-muted); font-weight: bold;">x</span>
+          <input type="number" id="single-dim-l" class="form-control" placeholder="Дължина (L)" min="1" value="${numbers[1] || ''}" style="flex: 1;" required>
+          <span style="color: var(--text-muted); font-weight: bold;">x</span>
+          <input type="number" id="single-dim-h" class="form-control" placeholder="Височина (H)" min="1" value="${numbers[2] || ''}" style="flex: 1;" required>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">мм</span>
+        `;
+      } else if (shape === 'circle') {
+        // 1 dimension: D
+        singleItemSizeInputsWrapper.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+            <span style="font-weight: 700; font-size: 1.2rem; color: var(--text-muted);">ф</span>
+            <input type="number" id="single-dim-d" class="form-control" placeholder="Диаметър" min="1" value="${numbers[0] || ''}" style="flex: 1;" required>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">мм</span>
+          </div>
+        `;
+      } else if (['oval', 'folder', 'label', 'envelope', 'playing_cards'].includes(shape)) {
+        // 2 dimensions: W x H
+        singleItemSizeInputsWrapper.innerHTML = `
+          <input type="number" id="single-dim-w" class="form-control" placeholder="Ширина (W)" min="1" value="${numbers[0] || ''}" style="flex: 1;" required>
+          <span style="color: var(--text-muted); font-weight: bold;">x</span>
+          <input type="number" id="single-dim-h" class="form-control" placeholder="Височина (H)" min="1" value="${numbers[1] || ''}" style="flex: 1;" required>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">мм</span>
+        `;
+      } else {
+        // General text input
+        const cleanVal = initialValue || '';
+        singleItemSizeInputsWrapper.innerHTML = `
+          <input type="text" id="single-dim-custom" class="form-control" placeholder="напр. 150x200 мм, нестандартен" value="${escapeHTML(cleanVal)}" style="flex: 1;">
+        `;
+      }
+    }
+
+    function setupEventListeners() {
+      // Toggle category-specific fields dynamically
+      toolCategorySelect.addEventListener('change', () => {
+        if (toolCategorySelect.value === 'die') {
+          dieSpecificFieldsDiv.classList.remove('hidden');
+          updateSingleItemSizeInputs(toolDieShapeSelect.value);
+        } else {
+          dieSpecificFieldsDiv.classList.add('hidden');
+        }
+      });
+
+      // Bind shape change listener to dynamically redraw item dimensions input fields
+      toolDieShapeSelect.addEventListener('change', () => {
+        updateSingleItemSizeInputs(toolDieShapeSelect.value);
+      });
+
+      // View Mode Toggle Listeners
+      btnViewGrid.addEventListener('click', () => {
+        currentViewMode = 'grid';
+        btnViewGrid.classList.add('active');
+        btnViewTable.classList.remove('active');
+        renderTools();
+      });
+
+      btnViewTable.addEventListener('click', () => {
+        currentViewMode = 'table';
+        btnViewTable.classList.add('active');
+        btnViewGrid.classList.remove('active');
+        renderTools();
+      });
+
+      // Search
+      searchInput.addEventListener('input', debounce(() => {
+        searchQuery = searchInput.value.trim();
+        fetchTools();
+      }, 300));
+
+      // Dimensions Filter
+      dimFilter.addEventListener('input', debounce(() => {
+        dimQuery = dimFilter.value.trim();
+        fetchTools();
+      }, 300));
+
+      // Status Filter
+      statusFilter.addEventListener('change', () => {
+        currentStatus = statusFilter.value;
+        fetchTools();
+      });
+
+      // Category Tabs
+      categoryTabsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        
+        categoryTabsContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        currentCategory = btn.getAttribute('data-category');
+        fetchTools();
+      });
+
+      // Pagination Size Selector
+      paginationSizeSelect.addEventListener('change', () => {
+        pageSize = parseInt(paginationSizeSelect.value, 10);
+        currentPage = 1;
+        renderTools();
+      });
+
+      // Modal Triggers
+      btnOpenAddModal.addEventListener('click', openAddModal);
+      btnCloseModal.addEventListener('click', closeModal);
+      btnCancelModal.addEventListener('click', closeModal);
+      
+      // QR Code Modal Triggers
+      btnCloseQrcodeModal.addEventListener('click', closeQrcodeModal);
+      btnDownloadQrcode.addEventListener('click', downloadQRCode);
+      
+      // Close modal on background click
+      window.addEventListener('click', (e) => {
+        if (e.target === toolModal) closeModal();
+        if (e.target === qrcodeModal) closeQrcodeModal();
+      });
+
+      // Drag & Drop Handlers
+      ['dragenter', 'dragover'].forEach(eventName => {
+        fileUploadZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          fileUploadZone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        fileUploadZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          fileUploadZone.classList.remove('dragover');
+        }, false);
+      });
+
+      fileUploadZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt.files.length > 0) {
+          handleFiles(dt.files);
+        }
+      });
+
+      fileUploadZone.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          handleFiles(fileInput.files);
+          fileInput.value = '';
+        }
+      });
+
+      // Form Submit
+      toolForm.addEventListener('submit', handleFormSubmit);
+
+      // Lightbox Close
+      btnCloseLightbox.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeLightbox();
+          closeModal();
+        }
+      });
+    }
+
+    // File Handling
+    function handleFiles(fileList) {
+      const allowed = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'svg'];
+      const rejected = [];
+
+      Array.from(fileList).forEach(file => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!allowed.includes(ext)) {
+          rejected.push(file.name);
+          return;
+        }
+        selectedFiles.push(file);
+      });
+
+      if (rejected.length > 0) {
+        alert(`Неподдържан формат за: ${rejected.join(', ')}. Качете картинка (JPG, PNG, SVG) или PDF.`);
+      }
+
+      renderFilePreviewList();
+    }
+
+    function renderFilePreviewList() {
+      filePreviewList.innerHTML = selectedFiles.map((file, idx) => `
+        <div class="file-preview-row">
+          <span class="file-preview-name" title="${escapeHTML(file.name)}">${escapeHTML(file.name)} (${formatBytes(file.size)})</span>
+          <button type="button" class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem;" onclick="removeSelectedFile(${idx})">Изтрий</button>
+        </div>
+      `).join('');
+    }
+
+    function removeSelectedFile(idx) {
+      selectedFiles.splice(idx, 1);
+      renderFilePreviewList();
+    }
+
+    // Modal Actions
+    function openAddModal() {
+      isEditing = false;
+      selectedFiles = [];
+      deletedDrawingIds = [];
+      toolForm.reset();
+      toolIdInput.value = '';
+      fileInput.value = '';
+
+      // Reset specific fields
+      toolDieShapeSelect.value = '';
+      toolDieTypeSelect.value = '';
+      toolUpsInput.value = '1';
+      toolMaterialSelect.value = '';
+      toolFilePathInput.value = '';
+      updateSingleItemSizeInputs('');
+      dieSpecificFieldsDiv.classList.add('hidden');
+
+      toolCodeInput.placeholder = "Оставете празно за автоматичен код";
+      toolCodeInput.disabled = false;
+      modalTitleText.textContent = "Добавяне на Нов Инструмент";
+
+      existingDrawingsGallery.innerHTML = '';
+      existingDrawingsGallery.classList.add('hidden');
+      renderFilePreviewList();
+
+      toolModal.classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const tool = tools.find(t => t.id === id);
+      if (!tool) return;
+
+      isEditing = true;
+      selectedFiles = [];
+      deletedDrawingIds = [];
+
+      toolIdInput.value = tool.id;
+      toolCodeInput.value = tool.code;
+      toolCodeInput.placeholder = "";
+      toolCategorySelect.value = tool.category;
+      toolNameInput.value = tool.name;
+      toolClientInput.value = tool.client || '';
+      toolStatusSelect.value = tool.status;
+      toolDimensionsInput.value = tool.dimensions || '';
+      toolLocationInput.value = tool.location;
+      toolNotesInput.value = tool.notes || '';
+      toolFilePathInput.value = tool.file_path || '';
+
+      // Populate specific fields
+      if (tool.category === 'die') {
+        dieSpecificFieldsDiv.classList.remove('hidden');
+        toolDieShapeSelect.value = tool.die_shape || '';
+        toolDieTypeSelect.value = tool.die_type || '';
+        toolUpsInput.value = tool.ups || '1';
+        toolMaterialSelect.value = tool.material || '';
+        updateSingleItemSizeInputs(tool.die_shape || '', tool.single_item_dimensions || '');
+      } else {
+        dieSpecificFieldsDiv.classList.add('hidden');
+        toolDieShapeSelect.value = '';
+        toolDieTypeSelect.value = '';
+        toolUpsInput.value = '1';
+        toolMaterialSelect.value = '';
+        updateSingleItemSizeInputs('');
+      }
+
+      fileInput.value = '';
+      modalTitleText.textContent = `Редактиране на инструмент: ${tool.code}`;
+
+      renderExistingDrawingsGallery(tool);
+      renderFilePreviewList();
+
+      toolModal.classList.add('active');
+    }
+
+    function renderExistingDrawingsGallery(tool) {
+      const drawings = tool.drawings || [];
+      if (drawings.length === 0) {
+        existingDrawingsGallery.innerHTML = '';
+        existingDrawingsGallery.classList.add('hidden');
+        return;
+      }
+
+      existingDrawingsGallery.classList.remove('hidden');
+      existingDrawingsGallery.innerHTML = drawings.map(d => {
+        const thumbSrc = isPdfFilename(d.image_filename) ? d.preview_filename : d.image_filename;
+        const thumbHtml = thumbSrc
+          ? `<img src="/uploads/${thumbSrc}" alt="${escapeHTML(tool.name)}">`
+          : `<i class="fa-regular ${isPdfFilename(d.image_filename) ? 'fa-file-pdf' : 'fa-image'} no-image-icon"></i>`;
+        return `
+          <div class="existing-drawing-item" data-drawing-id="${d.id}">
+            ${thumbHtml}
+            <button type="button" class="existing-drawing-remove" title="Премахни чертежа" onclick="markDrawingForRemoval(${d.id}, this)">&times;</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function markDrawingForRemoval(drawingId, buttonEl) {
+      deletedDrawingIds.push(drawingId);
+      buttonEl.closest('.existing-drawing-item').remove();
+    }
+
+    function closeModal() {
+      toolModal.classList.remove('active');
+    }
+
+    // Form Submit logic
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      const category = toolCategorySelect.value;
+      const name = toolNameInput.value.trim();
+      const location = toolLocationInput.value.trim();
+      
+      if (!category || !name || !location) {
+        alert('Моля попълнете всички задължителни полета (*).');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('category', category);
+      formData.append('code', toolCodeInput.value.trim());
+      formData.append('name', name);
+      formData.append('client', toolClientInput.value.trim());
+      formData.append('status', toolStatusSelect.value);
+      formData.append('dimensions', toolDimensionsInput.value.trim());
+      formData.append('location', location);
+      formData.append('notes', toolNotesInput.value.trim());
+      formData.append('file_path', toolFilePathInput.value.trim());
+      
+      // Append specific fields for dies
+      if (category === 'die') {
+        formData.append('die_shape', toolDieShapeSelect.value);
+        formData.append('die_type', toolDieTypeSelect.value);
+        formData.append('ups', toolUpsInput.value);
+        formData.append('material', toolMaterialSelect.value);
+        
+        // Assemble single item dimensions based on selected shape
+        let singleItemSize = '';
+        const shape = toolDieShapeSelect.value;
+        if (shape === 'box') {
+          const w = document.getElementById('single-dim-w').value.trim();
+          const l = document.getElementById('single-dim-l').value.trim();
+          const h = document.getElementById('single-dim-h').value.trim();
+          if (w && l && h) singleItemSize = `${w}x${l}x${h} mm`;
+        } else if (shape === 'circle') {
+          const d = document.getElementById('single-dim-d').value.trim();
+          if (d) singleItemSize = `ф${d} mm`;
+        } else if (['oval', 'folder', 'label', 'envelope', 'playing_cards'].includes(shape)) {
+          const w = document.getElementById('single-dim-w').value.trim();
+          const h = document.getElementById('single-dim-h').value.trim();
+          if (w && h) singleItemSize = `${w}x${h} mm`;
+        } else {
+          const customInput = document.getElementById('single-dim-custom');
+          if (customInput) singleItemSize = customInput.value.trim();
+        }
+        formData.append('single_item_dimensions', singleItemSize);
+      }
+      
+      selectedFiles.forEach(file => formData.append('images', file));
+
+      if (isEditing) {
+        formData.append('delete_drawing_ids', JSON.stringify(deletedDrawingIds));
+      }
+
+      const id = toolIdInput.value;
+      const url = isEditing ? `/api/tools/${id}` : '/api/tools';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const saveBtn = document.getElementById('btn-save-tool');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Запис...';
+
+      fetch(url, {
+        method: method,
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Запази';
+        
+        if (data.error) {
+          alert(data.error);
+        } else {
+          closeModal();
+          fetchTools();
+        }
+      })
+      .catch(err => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Запази';
+        console.error("Грешка при запис:", err);
+        alert("Грешка при изпращане на данните.");
+      });
+    }
+
+    // Delete Tool logic
+    function deleteTool(id, code) {
+      if (confirm(`Сигурни ли сте, че искате да изтриете инструмент с код "${code}"?`)) {
+        fetch(`/api/tools/${id}`, {
+          method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            fetchTools();
+          } else {
+            alert('Грешка при изтриването.');
+          }
+        })
+        .catch(err => console.error("Грешка:", err));
+      }
+    }
+
+    // Lightbox triggers
+    function openLightbox(src) {
+      lightboxImg.src = src;
+      lightbox.classList.add('active');
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      setTimeout(() => {
+        lightboxImg.src = '';
+      }, 200);
+    }
+
+    // Warehouse Labels Printing with QR Code
+    function printLabel(id) {
+      const tool = tools.find(t => t.id === id);
+      if (!tool) return;
+
+      const categoryName = tool.category === 'die' ? 'ЩАНЦА' : (tool.category === 'embossing' ? 'ПРЕГЕ' : 'ТОПЪЛ ПЕЧАТ');
+      const dateStr = new Date(tool.created_at || Date.now()).toLocaleDateString('bg-BG');
+
+      let dimensionsHtml = '';
+      if (tool.category === 'die') {
+        dimensionsHtml = `
+          <div style="margin-bottom: 0.5mm;"><strong>Р-р изделие:</strong> ${escapeHTML(tool.single_item_dimensions || '–')}</div>
+          <div style="margin-bottom: 0.5mm;"><strong>Гнезда:</strong> ${tool.ups || 1} гн.</div>
+          <div style="margin-bottom: 0.5mm;"><strong>Р-р плоча:</strong> ${escapeHTML(tool.dimensions || '–')}</div>
+        `;
+      } else {
+        dimensionsHtml = `
+          <div style="margin-bottom: 0.5mm;"><strong>Размери:</strong> ${escapeHTML(tool.dimensions || '–')}</div>
+        `;
+      }
+
+      const printContainer = document.getElementById('label-print-target');
+      printContainer.innerHTML = `
+        <div class="print-label-container" style="box-sizing: border-box; width: 80mm; height: 50mm; padding: 4mm; border: 2px solid #000; display: flex; flex-direction: column; justify-content: space-between; font-family: 'Consolas', Monaco, monospace; background: #fff; color: #000;">
+          <div class="print-label-header" style="font-size: 13pt; font-weight: bold; border-bottom: 1.5px solid #000; padding-bottom: 1mm; margin-bottom: 1.5mm; display: flex; justify-content: space-between; align-items: center;">
+            <span>${categoryName}</span>
+            <span style="font-size: 9pt; font-weight: normal;">Дата: ${dateStr}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-grow: 1;">
+            <div class="print-label-details" style="font-size: 9.5pt; line-height: 1.3; max-width: 48mm; overflow: hidden;">
+              <div style="margin-bottom: 0.5mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHTML(tool.name)}"><strong>Детайл:</strong> ${escapeHTML(tool.name)}</div>
+              <div style="margin-bottom: 0.5mm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHTML(tool.client || '–')}"><strong>Клиент:</strong> ${escapeHTML(tool.client || '–')}</div>
+              ${dimensionsHtml}
+              <div style="margin-top: 1.5mm;"><strong>Склад:</strong> <span style="font-weight: bold; border: 1.5px solid #000; padding: 0.2mm 1mm; background: #eaeaea; font-size: 9pt;">${escapeHTML(tool.location)}</span></div>
+            </div>
+            <div id="print-label-qrcode-container" style="width: 22mm; height: 22mm; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; padding: 0.5mm; background: #fff; box-sizing: border-box;"></div>
+          </div>
+          <div class="print-label-code" style="font-size: 16pt; font-weight: bold; text-align: center; border: 1.5px solid #000; padding: 0.5mm 0; margin-top: 1.5mm; background: #fff; letter-spacing: 0.5px;">
+            ${escapeHTML(tool.code)}
+          </div>
+        </div>
+      `;
+
+      // Generate QR Code dynamically inside the label
+      const qrEl = document.getElementById('print-label-qrcode-container');
+      qrEl.innerHTML = '';
+      const toolUrl = `${window.location.origin}/?q=${encodeURIComponent(tool.code)}`;
+      new QRCode(qrEl, {
+        text: toolUrl,
+        width: 76,
+        height: 76,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.M
+      });
+
+      // Brief delay to allow QR Code canvas rendering before browser print dialog opens
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    }
+
+    // QR Code Modal Management
+    let modalQrInstance = null;
+
+    function openQrcodeModal(id) {
+      const tool = tools.find(t => t.id === id);
+      if (!tool) return;
+
+      qrcodeModalTarget.innerHTML = '';
+      qrcodeModalCode.textContent = tool.code;
+
+      const toolUrl = `${window.location.origin}/?q=${encodeURIComponent(tool.code)}`;
+      
+      // Create new QRCode instance
+      modalQrInstance = new QRCode(qrcodeModalTarget, {
+        text: toolUrl,
+        width: 180,
+        height: 180,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+
+      qrcodeModal.classList.add('active');
+    }
+
+    function closeQrcodeModal() {
+      qrcodeModal.classList.remove('active');
+      setTimeout(() => {
+        qrcodeModalTarget.innerHTML = '';
+        modalQrInstance = null;
+      }, 200);
+    }
+
+    function downloadQRCode() {
+      const canvas = qrcodeModalTarget.querySelector('canvas');
+      const img = qrcodeModalTarget.querySelector('img');
+      
+      let dataUrl = '';
+      if (canvas) {
+        dataUrl = canvas.toDataURL('image/png');
+      } else if (img) {
+        dataUrl = img.src;
+      }
+
+      if (dataUrl) {
+        const link = document.createElement('a');
+        const code = qrcodeModalCode.textContent;
+        link.download = `QR_${code}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+
+    // Export / Copy drawings to local disk folder
+    function exportDesignFile(id) {
+      const tool = tools.find(t => t.id === id);
+      if (!tool) return;
+      
+      const defaultPath = "D:\\Чертежи";
+      // The copy runs on the SERVER machine (e.g. into a shared network folder), not on this computer
+      const destFolder = prompt(`Въведете пълен път до папка на СЪРВЪРА (компютъра, на който работи каталогът), където да се копират файловете за ${tool.code}:\n(Ако папката не съществува, ще бъде създадена. За да ги получите на този компютър, използвайте „Свали чертежите“.)`, defaultPath);
+      
+      if (destFolder === null) return; // User clicked Cancel
+      
+      const cleanPath = destFolder.trim();
+      if (!cleanPath) {
+        alert("Моля въведете път до папка.");
+        return;
+      }
+      
+      fetch(`/api/tools/${id}/copy-file`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ destination_folder: cleanPath })
+      })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(res => {
+        if (res.status === 200) {
+          alert(res.body.message);
+        } else {
+          alert("Грешка: " + (res.body.error || "Възникна системна грешка при копирането."));
+        }
+      })
+      .catch(error => {
+        console.error('Error exporting file:', error);
+        alert("Възникна мрежова грешка при опит за връзка със сървъра.");
+      });
+    }
+
+    // Helpers
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Only letters, digits, '-' and '_' may end up in a class attribute
+    function cssToken(value) {
+      return String(value == null ? '' : value).replace(/[^a-z0-9_-]/gi, '');
+    }
+
+    function escapeHTML(str) {
+      if (str === null || str === undefined || str === '') return '';
+      return String(str).replace(/[&<>'"]/g,
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
+    }
+
+    // PDFs can't be shown inline via <img> - browsers fall back to rendering
+    // the alt text, which is what produced the broken-looking thumbnail.
+    function isPdfFilename(filename) {
+      return !!filename && filename.toLowerCase().endsWith('.pdf');
+    }
+
+    // Multi-drawing preview helpers -----------------------------------------
+
+    function getActiveDrawing(t) {
+      const drawings = t.drawings || [];
+      if (drawings.length === 0) return null;
+      const idx = Math.min(activeDrawingIndex[t.id] || 0, drawings.length - 1);
+      return drawings[idx];
+    }
+
+    function buildDrawingImgHtml(t, drawing, imgClass, noImageClass) {
+      if (!drawing) {
+        return `<div class="${noImageClass}"><i class="fa-regular fa-image no-image-icon"></i></div>`;
+      }
+      if (isPdfFilename(drawing.image_filename)) {
+        if (drawing.preview_filename) {
+          return `<img src="/thumbs/${drawing.preview_filename}" loading="lazy" decoding="async" class="${imgClass}" alt="${escapeHTML(t.name)}" title="Превю от PDF чертеж - клик за отваряне на оригинала" role="button" tabindex="0" onclick="window.open('/uploads/${drawing.image_filename}', '_blank')">`;
+        }
+        return `<div class="${noImageClass}" title="PDF чертеж - клик за отваряне" aria-label="Отвори PDF чертежа на ${escapeHTML(t.name)}" role="button" tabindex="0" style="cursor:pointer;" onclick="window.open('/uploads/${drawing.image_filename}', '_blank')"><i class="fa-regular fa-file-pdf no-image-icon"></i></div>`;
+      }
+      return `<img src="/thumbs/${drawing.image_filename}" loading="lazy" decoding="async" class="${imgClass}" alt="${escapeHTML(t.name)}" role="button" tabindex="0" onclick="openLightbox('/uploads/${drawing.image_filename}')">`;
+    }
+
+    function buildDrawingIndicatorHtml(t) {
+      const drawings = t.drawings || [];
+      if (drawings.length <= 1) return '';
+      const activeIdx = Math.min(activeDrawingIndex[t.id] || 0, drawings.length - 1);
+      const dots = drawings.map((d, idx) =>
+        `<span class="drawing-dot ${idx === activeIdx ? 'active' : ''}" role="button" tabindex="0" aria-label="Чертеж ${idx + 1}" aria-pressed="${idx === activeIdx}" onclick="event.stopPropagation(); switchDrawing(${t.id}, ${idx})">${idx + 1}</span>`
+      ).join('');
+      return `<div class="drawing-indicator">${dots}</div>`;
+    }
+
+    function switchDrawing(toolId, idx) {
+      activeDrawingIndex[toolId] = idx;
+      const t = tools.find(x => x.id === toolId);
+      if (!t) return;
+      const drawing = getActiveDrawing(t);
+
+      const thumbCell = document.querySelector(`[data-thumb-cell="${toolId}"]`);
+      if (thumbCell) {
+        thumbCell.innerHTML = buildDrawingImgHtml(t, drawing, 'table-thumbnail', 'table-no-image') + buildDrawingIndicatorHtml(t);
+      }
+
+      const cardWrapper = document.querySelector(`[data-card-image-wrapper="${toolId}"]`);
+      if (cardWrapper) {
+        cardWrapper.innerHTML = buildDrawingImgHtml(t, drawing, 'card-image', 'no-image-placeholder') + buildDrawingIndicatorHtml(t);
+      }
+    }
+
+    function downloadDrawings(id) {
+      window.open(`/api/tools/${id}/drawings/download`, '_blank');
+    }
+  
+    // ===== Accessibility behaviour (Impeccable audit) =====
+    (function () {
+      const appRoot = document.querySelector('.app-container');
+      const dialogs = [...document.querySelectorAll('.modal, .lightbox')];
+      const closeButtons = { 'tool-modal': 'btn-close-modal', 'qrcode-modal': 'btn-close-qrcode-modal', 'lightbox': 'btn-close-lightbox' };
+      const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      let returnFocusTo = null;
+
+      function openDialog() { return dialogs.find(d => d.classList.contains('active')); }
+
+      // When a dialog opens: remember the opener, make the page behind inert and move
+      // focus inside. When it closes: undo that and return focus to the opener.
+      const observer = new MutationObserver(() => {
+        const active = openDialog();
+        if (active && !appRoot.inert) {
+          returnFocusTo = document.activeElement;
+          appRoot.inert = true;
+          const first = active.querySelector('input:not([type="hidden"]):not([disabled]), select, textarea') || active.querySelector(FOCUSABLE);
+          setTimeout(() => first && first.focus(), 50);
+        } else if (!active && appRoot.inert) {
+          appRoot.inert = false;
+          if (returnFocusTo && document.contains(returnFocusTo)) returnFocusTo.focus();
+          returnFocusTo = null;
+        }
+      });
+      dialogs.forEach(d => observer.observe(d, { attributes: true, attributeFilter: ['class'] }));
+
+      document.addEventListener('keydown', (e) => {
+        const active = openDialog();
+        if (e.key === 'Escape' && active) {
+          const btn = document.getElementById(closeButtons[active.id]);
+          if (btn) { e.preventDefault(); btn.click(); }
+          return;
+        }
+        // Keep Tab inside the open dialog
+        if (e.key === 'Tab' && active) {
+          const items = [...active.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
+          if (!items.length) return;
+          const first = items[0], last = items[items.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          return;
+        }
+        // Enter / Space activate non-button elements that act as buttons
+        const target = e.target;
+        if ((e.key === 'Enter' || e.key === ' ') && target.getAttribute && target.getAttribute('role') === 'button' && target.tagName !== 'BUTTON') {
+          e.preventDefault();
+          target.click();
+        }
+      });
+
+      // Icon-only buttons rendered without a name get their tooltip as accessible name
+      function nameIconButtons(root) {
+        root.querySelectorAll('button').forEach(b => {
+          if (!b.getAttribute('aria-label') && !b.textContent.trim() && b.title) b.setAttribute('aria-label', b.title);
+        });
+      }
+      nameIconButtons(document);
+      ['tools-table-body', 'tools-grid-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) new MutationObserver(() => nameIconButtons(el)).observe(el, { childList: true, subtree: true });
+      });
+
+      // Expose menu / toggle states to assistive technology
+      const menuBtn = document.getElementById('user-menu-btn');
+      const menu = document.getElementById('user-menu-dropdown');
+      if (menuBtn && menu) {
+        new MutationObserver(() => menuBtn.setAttribute('aria-expanded', String(!menu.classList.contains('hidden'))))
+          .observe(menu, { attributes: true, attributeFilter: ['class'] });
+      }
+      ['btn-view-grid', 'btn-view-table'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) new MutationObserver(() => btn.setAttribute('aria-pressed', String(btn.classList.contains('active'))))
+          .observe(btn, { attributes: true, attributeFilter: ['class'] });
+      });
+      const tabs = document.getElementById('category-tabs-container');
+      if (tabs) {
+        const syncTabs = () => tabs.querySelectorAll('.tab-btn').forEach(t => t.setAttribute('aria-pressed', String(t.classList.contains('active'))));
+        syncTabs();
+        new MutationObserver(syncTabs).observe(tabs, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      }
+    })();
+  </script>
+</body>
+</html>
