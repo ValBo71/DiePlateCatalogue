@@ -30,8 +30,10 @@ logger = logging.getLogger(__name__)
 
 # Configurations
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = 'uploads'
-DB_FOLDER = 'database'
+# Overridable so the test suite (and anyone else who wants an isolated instance) can point the app
+# at a throwaway copy instead of the real database/uploads folders shipped in this repo.
+UPLOAD_FOLDER = os.environ.get('CATALOG_UPLOAD_FOLDER', 'uploads')
+DB_FOLDER = os.environ.get('CATALOG_DB_FOLDER', 'database')
 DB_PATH = os.path.join(DB_FOLDER, 'catalog.db')
 SECRET_KEY_FILE = os.path.join(DB_FOLDER, '.flask_secret_key')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'svg'}
@@ -43,8 +45,9 @@ COPYABLE_EXTENSIONS = ALLOWED_EXTENSIONS | {
     'tif', 'tiff', 'psd', 'indd', 'idml', 'bmp', 'webp'
 }
 # Change this single value if port 5050 is already taken on this machine
-# (remember to update run.bat/run_mac.command, which open the browser at it).
-PORT = 5050
+# (remember to update run.bat/run_mac.command, which open the browser at it), or set
+# CATALOG_PORT for a one-off run (e.g. a test suite that must not collide with a dev instance).
+PORT = int(os.environ.get('CATALOG_PORT', 5050))
 
 ROLE_ADMIN = 'admin'
 ROLE_READ_WRITE = 'read_write'

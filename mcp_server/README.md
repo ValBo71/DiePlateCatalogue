@@ -75,3 +75,17 @@ the write before this server's code even runs.
 Out of scope for this first version: file upload/download (`copy-file`, `drawings/download`) and
 user management (`/api/users`) - both touch the filesystem or account security more directly and
 are left for a later iteration if needed.
+
+## Tests
+
+`../tests/test_mcp_client.py` and `../tests/test_mcp_protocol.py` cover this server - the second
+drives it over a real MCP stdio JSON-RPC handshake, the same way an MCP host does. See the root
+README's Tests section for how to run them.
+
+## Note on the `mcp` SDK version
+
+This server targets `mcp` 2.x, where the class used here was renamed from `FastMCP` to
+`MCPServer` and moved from `mcp.server.fastmcp` to `mcp.server.mcpserver` (the old import raises a
+`ModuleNotFoundError` with a migration pointer, which is how this was caught). If you see that
+error, either update this file's import to match your installed SDK's migration guide, or pin
+`mcp<2` in `requirements.txt` to keep the `FastMCP` API.

@@ -48,19 +48,28 @@ class CatalogClient:
     def __init__(self, credentials: CatalogCredentials):
         self._base_url = credentials.base_url
         self._session = requests.Session()
+        # The app's dev server (Werkzeug, threaded=True) can wedge a request on a reused
+        # keep-alive connection: hit hard enough while testing that a connection accepted at the
+        # TCP level never reached the WSGI app or got logged, and the client just read-timed-out.
+        # This server is meant for short-lived scripted/automation use anyway, so there is nothing
+        # to gain from keep-alive; closing every connection sidesteps the dev server's fragility.
+        self._session.headers["Connection"] = "close"
         self._login(credentials.username, credentials.password)
 
     def _login(self, username: str, password: str) -> None:
         # The app's CSRF guard (reject_cross_origin_writes) checks the Origin header against
         # the request host on every write; sending it here keeps every later POST/PUT/DELETE
         # consistent with what a real browser tab on this same origin would send.
-        response = self._session.post(
-            f"{self._base_url}/login",
-            data={"username": username, "password": password},
-            headers={"Origin": self._base_url},
-            allow_redirects=False,
-            timeout=10,
-        )
+        try:
+            response = self._session.post(
+                f"{self._base_url}/login",
+                data={"username": username, "password": password},
+                headers={"Origin": self._base_url},
+                allow_redirects=False,
+                timeout=10,
+            )
+        except requests.RequestException as exc:
+            raise CatalogApiError(0, f"could not reach the app at {self._base_url}: {exc}") from exc
         if response.status_code not in (302, 200):
             raise CatalogApiError(response.status_code, "login failed - check CATALOG_USERNAME/CATALOG_PASSWORD")
         # A failed login re-renders the login page (200) instead of redirecting (302).

@@ -141,3 +141,20 @@
    > Ако порт `5050` е зает от друга програма, сървърът няма да стартира —
    > сменете стойността на `PORT` в началото на `app.py` (и адреса, който
    > `run.bat` / `run_mac.command` отварят в браузъра).
+
+## 🧪 Тестове
+
+В [`tests/`](tests/) има pytest suite, който покрива и приложението, и MCP сървъра — общо 26 теста, на три нива:
+
+* **`test_app_api.py`** — директно срещу `/api/tools` и `/api/users`: филтри, CRUD жизнен цикъл, CSRF защита и че всяка от трите роли вижда точно това, което трябва (включително че `read_only` получава `403`, не тихо игнориране).
+* **`test_mcp_client.py`** — срещу `mcp_server/client.py`, HTTP слоя, който MCP инструментите реално викат.
+- **`test_mcp_protocol.py`** — през истински MCP JSON-RPC handshake (stdio) към `mcp_server/server.py`, точно както би го направил Claude Code/Desktop, а не само през Python функциите му.
+
+Всеки тест run стартира приложението върху **временно копие** на демо базата и `uploads/` (виж `tests/conftest.py`) — истинската `database/catalog.db` в репото никога не се пипа, и тестовете могат свободно да добавят/трият записи.
+
+```bash
+pip install -r requirements.txt -r mcp_server/requirements.txt -r tests/requirements.txt
+pytest -v
+```
+
+CI (`.github/workflows/tests.yml`) пуска същото при всеки push/PR към `main`.

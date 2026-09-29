@@ -176,6 +176,7 @@ def update_tool(
         return current
 
     updated = {
+        "code": current["code"],
         "name": name if name is not None else current["name"],
         "category": category if category is not None else current["category"],
         "client": client if client is not None else current["client"],
